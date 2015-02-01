@@ -15,19 +15,50 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
+    
     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[WebBrowserViewController alloc] init]];
+    
     [self.window makeKeyAndVisible];
+    
+    [self showWelcomeMessage];
+    
     return YES;
+}
+
+- (void)showWelcomeMessage {
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Welcome!", @"Welcome title")
+                                                                   message:NSLocalizedString(@"Get excited to use the best web browser ever!", @"Welcome comment")
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK, I'm excited!", @"Welcome button title") style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
+    
+    [alert addAction: defaultAction];
+    
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+// QUESTION: error: Attempt to present <UIAlertController: 0x12f50b9e0> on <UINavigationController: 0x12f60c8e0> whose view is not in the window hierarchy!
+    
+//    QUESTION: 'displays the receiver' terminology q -- receiver? is that the receiver of the message; and how to you tell on which VC this is presented?
+//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Welcome!", @"Welcome title")
+//                                                    message:NSLocalizedString(@"Get excited to use the best web browser ever!", @"Welcome comment")
+//                                                   delegate:nil cancelButtonTitle:NSLocalizedString(@"OK, I'm excited!", @"Welcome button title")
+//                                          otherButtonTitles:nil];
+//    [alert show];
+    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    
+    UINavigationController *navigationVC = (UINavigationController *)self.window.rootViewController;
+    WebBrowserViewController *browserVC = [[navigationVC viewControllers] firstObject];
+    [browserVC resetWebView];
+    
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
