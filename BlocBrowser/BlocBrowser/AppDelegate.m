@@ -30,25 +30,26 @@
 }
 
 - (void)showWelcomeMessage {
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Welcome!", @"Welcome title")
-                                                                   message:NSLocalizedString(@"Get excited to use the best web browser ever!", @"Welcome comment")
-                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+//    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Welcome!", @"Welcome title")
+//                                                                   message:NSLocalizedString(@"Get excited to use the best web browser ever!", @"Welcome comment")
+//                                                            preferredStyle:UIAlertControllerStyleAlert];
+//    
+//    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK, I'm excited!", @"Welcome button title") style:UIAlertActionStyleDefault
+//                                                          handler:^(UIAlertAction * action) {}];
+//    
+//    [alert addAction: defaultAction];
+//    
+//    WebBrowserViewController* wbvc = (WebBrowserViewController*)((UINavigationController*)self.window.rootViewController).viewControllers[0];
     
-    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK, I'm excited!", @"Welcome button title") style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction * action) {}];
+//    [wbvc presentViewController:alert animated:YES completion:nil];
     
-    [alert addAction: defaultAction];
-    
-    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
-// QUESTION: error: Attempt to present <UIAlertController: 0x12f50b9e0> on <UINavigationController: 0x12f60c8e0> whose view is not in the window hierarchy!
-    
-//    QUESTION: 'displays the receiver' terminology q -- receiver? is that the receiver of the message; and how to you tell on which VC this is presented?
 //    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Welcome!", @"Welcome title")
 //                                                    message:NSLocalizedString(@"Get excited to use the best web browser ever!", @"Welcome comment")
 //                                                   delegate:nil cancelButtonTitle:NSLocalizedString(@"OK, I'm excited!", @"Welcome button title")
 //                                          otherButtonTitles:nil];
 //    [alert show];
-    
+//    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
