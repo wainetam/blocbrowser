@@ -125,20 +125,20 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     UILabel *label = [self labelFromTouches:touches withEvent:event]; // QUESTION: FloatingToolBar is a UILabel?
-    NSLog(@"Label tapped: %@", label.text);
-    
-    if (self.currentLabel == label) {
-        NSLog(@"Label tapped: %@", self.currentLabel.text);
+//    NSLog(@"Label tapped: %@", label.text);
+    // when label is unenabled, the return value from labelFromTouches is UIView parent AwesomeFloatingToolbar, not UILabel
+    if (self.currentLabel == label && [self.currentLabel respondsToSelector:@selector(text)] ) { // added second condition and it works
+//        NSLog(@"Label tapped: %@", self.currentLabel.text);
         
-        if (self.currentLabel.userInteractionEnabled && [self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
-            [self.delegate floatingToolbar:self didSelectButtonWithTitle:self.currentLabel.text];
+        if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
+            [self.delegate floatingToolbar:self didSelectButtonWithTitle:self.currentLabel.text]; // bug is something with accessing text property of self.currentLabel
         } else {
             NSLog(@"self.delegate doesn't respond to @selector");
         }
     }
     
-    self.currentLabel.alpha = 1;
-    self.currentLabel = nil;
+    self.currentLabel.alpha = 1; // shows slight flicker to indicate click
+//    self.currentLabel = nil; // QUESTION: why need to set to nil?
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
