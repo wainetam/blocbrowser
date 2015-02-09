@@ -128,8 +128,6 @@
 //    NSLog(@"Label tapped: %@", label.text);
     // when label is unenabled, the return value from labelFromTouches is UIView parent AwesomeFloatingToolbar, not UILabel
     if (self.currentLabel == label && [self.currentLabel respondsToSelector:@selector(text)] ) { // added second condition and it works
-//        NSLog(@"Label tapped: %@", self.currentLabel.text);
-        
         if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
             [self.delegate floatingToolbar:self didSelectButtonWithTitle:self.currentLabel.text]; // bug is something with accessing text property of self.currentLabel
         } else {
@@ -138,7 +136,7 @@
     }
     
     self.currentLabel.alpha = 1; // shows slight flicker to indicate click
-//    self.currentLabel = nil; // QUESTION: why need to set to nil?
+    self.currentLabel = nil; // QUESTION: why need to set to nil?
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
