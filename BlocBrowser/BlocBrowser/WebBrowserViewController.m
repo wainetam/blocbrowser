@@ -138,6 +138,33 @@
     }
 }
 
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPanWithOffset:(CGPoint)offset {
+    CGPoint startingPoint = toolbar.frame.origin;
+    CGPoint newPoint = CGPointMake(startingPoint.x + offset.x, startingPoint.y + offset.y);
+    
+    CGRect potentialNewFrame = CGRectMake(newPoint.x, newPoint.y, CGRectGetWidth(toolbar.frame), CGRectGetHeight(toolbar.frame));
+    
+    if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
+        toolbar.frame = potentialNewFrame;
+    }
+}
+
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPinchWithScale:(CGFloat)scale {
+    // scale bounds
+    // QUESTION: why can't scale height and widths?
+
+    CGFloat newToolbarWidth = CGRectGetWidth(toolbar.bounds) * scale;
+    CGFloat newToolbarHeight = CGRectGetHeight(toolbar.bounds) * scale;
+    
+    CGRect potentialNewBounds = CGRectMake(0, 0, newToolbarWidth, newToolbarHeight);
+    
+    //    if (CGRectContainsRect(self.view.bounds, potentialNewBounds)) {
+//    toolbar.bounds = potentialNewBounds;
+    //    }
+
+    self.awesomeToolbar.transform = CGAffineTransformScale(self.awesomeToolbar.transform, scale, scale);
+}
+
 #pragma mark - UITextFieldDelegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
