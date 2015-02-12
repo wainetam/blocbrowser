@@ -127,7 +127,7 @@
     UILabel *label = [self labelFromTouches:touches withEvent:event]; // QUESTION: FloatingToolBar is a UILabel?
 //    NSLog(@"Label tapped: %@", label.text);
     // when label is unenabled, the return value from labelFromTouches is UIView parent AwesomeFloatingToolbar, not UILabel
-    if (self.currentLabel == label && [self.currentLabel respondsToSelector:@selector(text)] ) { // added second condition and it works
+    if (self.currentLabel == label && [label isKindOfClass: [UILabel class]] ) { // added second condition and it works
         if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
             [self.delegate floatingToolbar:self didSelectButtonWithTitle:self.currentLabel.text]; // bug is something with accessing text property of self.currentLabel
         } else {
