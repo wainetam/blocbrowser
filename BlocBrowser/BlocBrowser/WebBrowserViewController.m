@@ -157,7 +157,7 @@
             NSURLRequest *request = [NSURLRequest requestWithURL:URL];
             [self.webview loadRequest:request];
         }
-    } else { // entered search terms
+    } else { // entered search termss
         
         NSMutableString *inputtedWithPlussesAdded = [inputtedString mutableCopy];
         [inputtedWithPlussesAdded replaceOccurrencesOfString:@" "
