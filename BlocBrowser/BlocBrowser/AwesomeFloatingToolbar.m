@@ -11,12 +11,13 @@
 @interface AwesomeFloatingToolbar ()
 
 @property (nonatomic, strong) NSArray *currentTitles;
-@property (nonatomic, strong) NSArray *colors;
+//@property (nonatomic, strong) NSMutableArray *colors;
 @property (nonatomic, strong) NSArray *labels;
-@property (nonatomic, weak) UILabel *currentLabel;
-@property (nonatomic, strong) UITapGestureRecognizer *tapGesture;
+@property (nonatomic, weak) UIButton *currentLabel;
+//@property (nonatomic, strong) UITapGestureRecognizer *tapGesture;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchGesture;
+@property (nonatomic, strong) UILongPressGestureRecognizer *longPressGesture;
 
 @end
 
@@ -30,45 +31,61 @@
         
         // save the titles, and set the 4 colors
         self.currentTitles = titles;
-        self.colors = @[[UIColor colorWithRed:199/255.0 green:158/255.0 blue:203/255.0 alpha:1],                        [UIColor colorWithRed:255/255.0 green:105/255.0 blue:97/255.0 alpha:1],
-                        [UIColor colorWithRed:222/255.0 green:165/255.0 blue:164/255.0 alpha:1],
-                        [UIColor colorWithRed:255/255.0 green:179/255.0 blue:71/255.0 alpha:1]];
+        self.colors = [[NSMutableArray alloc] initWithArray:@[[UIColor colorWithRed:199/255.0 green:158/255.0 blue:203/255.0 alpha:1],
+                                                              [UIColor colorWithRed:255/255.0 green:105/255.0 blue:97/255.0 alpha:1],
+                                                              [UIColor colorWithRed:222/255.0 green:165/255.0 blue:164/255.0 alpha:1],
+                                                              [UIColor colorWithRed:255/255.0 green:179/255.0 blue:71/255.0 alpha:1]]];
+        
+//        self.colors = @[[UIColor colorWithRed:199/255.0 green:158/255.0 blue:203/255.0 alpha:1],
+//                        [UIColor colorWithRed:255/255.0 green:105/255.0 blue:97/255.0 alpha:1],
+//                        [UIColor colorWithRed:222/255.0 green:165/255.0 blue:164/255.0 alpha:1],
+//                        [UIColor colorWithRed:255/255.0 green:179/255.0 blue:71/255.0 alpha:1]];
         
         NSMutableArray *labelsArray = [[NSMutableArray alloc] init];
         
         // make the 4 labels
         for (NSString *currentTitle in self.currentTitles) {
-            UILabel *label = [[UILabel alloc] init];
-            label.userInteractionEnabled = NO; // QUESTION: why set this to no? why ignore user events initially?
+            UIButton *label = [[UIButton alloc] init];
+            label.userInteractionEnabled = NO;
             label.alpha = 0.25;
             
             NSUInteger currentTitleIndex = [self.currentTitles indexOfObject:currentTitle]; // 0 thru 3
             NSString *titleForThisLabel = [self.currentTitles objectAtIndex:currentTitleIndex];
             UIColor *colorForThisLabel = [self.colors objectAtIndex:currentTitleIndex];
             
-            label.textAlignment = NSTextAlignmentCenter;
-            label.font = [UIFont systemFontOfSize:10];
-            label.text = titleForThisLabel;
+//            label.textAlignment = NSTextAlignmentCenter;
+//            label.font = [UIFont systemFontOfSize:10];
+//            label.text = titleForThisLabel;
+            [label setTitle:titleForThisLabel forState:UIControlStateNormal];
+            [label.titleLabel setFont:[UIFont systemFontOfSize:10]];
             label.backgroundColor = colorForThisLabel;
-            label.textColor = [UIColor whiteColor];
+            [label setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//            label.textColor = [UIColor whiteColor];
+            
+            // QUESTION: does this 'self' refer to the button or the instance of the toolbar; ok with self, crashed with 'label'; if self generally the parent object if there are subviews?
+            [label addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
             
             [labelsArray addObject:label];
         }
         
         self.labels = labelsArray;
 
-        for (UILabel *thisLabel in self.labels) {
+//        for (UILabel *thisLabel in self.labels) {
+        for (UIButton *thisLabel in self.labels) {
             [self addSubview:thisLabel];
         }
         
-        self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFired:)];
-        [self addGestureRecognizer:self.tapGesture];
+//        self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFired:)];
+//        [self addGestureRecognizer:self.tapGesture];
         
         self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panFired:)];
         [self addGestureRecognizer:self.panGesture];
         
         self.pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchFired:)];
         [self addGestureRecognizer:self.pinchGesture];
+        
+        self.longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressFired:)];
+        [self addGestureRecognizer:self.longPressGesture];
     }
 
     return self;
@@ -77,7 +94,7 @@
 - (void) layoutSubviews {
     // set the frame for the 4 labels
     
-    for (UILabel *thisLabel in self.labels) {
+    for (UIButton *thisLabel in self.labels) {
         NSUInteger currentLabelIndex = [self.labels indexOfObject:thisLabel];
         
         CGFloat labelHeight = CGRectGetHeight(self.bounds) / 2;
@@ -110,24 +127,31 @@
 
 // determines which label was touched
 - (UILabel *)labelFromTouches:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject]; // QUESTION: what if touches.length > 1; what if two finger tap?
+    UITouch *touch = [touches anyObject];
     CGPoint location = [touch locationInView:self];
     UIView *subview = [self hitTest:location withEvent:event];
-    return (UILabel *) subview;  // QUESTION what subview is being returned here?
+    return (UILabel *) subview;
 }
 
-- (void) tapFired:(UITapGestureRecognizer *)recognizer {
-    if (recognizer.state == UIGestureRecognizerStateRecognized) {
-        CGPoint location = [recognizer locationInView:self];
-        UIView *tappedView = [self hitTest:location withEvent:nil]; // QUESTION: why is event nil?
-        
-        if ([self.labels containsObject:tappedView]) {
-            if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
-                [self.delegate floatingToolbar:self didSelectButtonWithTitle:((UILabel *)tappedView).text];
-            }
-        }
+- (void) buttonPressed:(UIButton *)sender {
+    NSLog(@"Button clicked");
+    if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
+        [self.delegate floatingToolbar:self didSelectButtonWithTitle:sender.titleLabel.text];
     }
 }
+
+//- (void) tapFired:(UITapGestureRecognizer *)recognizer {
+//    if (recognizer.state == UIGestureRecognizerStateRecognized) {
+//        CGPoint location = [recognizer locationInView:self];
+//        UIView *tappedView = [self hitTest:location withEvent:nil];
+//        
+//        if ([self.labels containsObject:tappedView]) {
+//            if ([self.delegate respondsToSelector:@selector(floatingToolbar:didSelectButtonWithTitle:)]) {
+//                [self.delegate floatingToolbar:self didSelectButtonWithTitle:((UILabel *)tappedView).text];
+//            }
+//        }
+//    }
+//}
 
 - (void) panFired:(UIPanGestureRecognizer *)recognizer {
     if (recognizer.state == UIGestureRecognizerStateChanged) {
@@ -157,6 +181,17 @@
     }
 }
 
+- (void) longPressFired:(UILongPressGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        int count = 1; // shift colors by this count
+        NSLog(@"Long Press Ended");
+        
+        if ([self.delegate respondsToSelector:@selector(floatingToolbar:didTryLongPressWithRotateIndex:)]) {
+            [self.delegate floatingToolbar:self didTryLongPressWithRotateIndex:count];
+        }
+    }
+}
+
 #pragma mark - Button Enabling
 
 - (void) setEnabled:(BOOL)enabled forButtonWithTitle:(NSString *)title {
@@ -164,7 +199,7 @@
     
     if (index != NSNotFound) { // if index found
         UILabel *label = [self.labels objectAtIndex:index];
-        label.userInteractionEnabled = enabled; // QUESTION: doesn't disable?
+        label.userInteractionEnabled = enabled;
         label.alpha = enabled ? 1.0 : 0.25;
     }
 }

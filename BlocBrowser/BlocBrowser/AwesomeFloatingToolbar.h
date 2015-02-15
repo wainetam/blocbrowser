@@ -20,6 +20,8 @@
 
 - (void) floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPinchWithScale:(CGFloat)scale;
 
+- (void) floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryLongPressWithRotateIndex:(int)count;
+
 @end
 
 @interface AwesomeFloatingToolbar : UIView
@@ -28,14 +30,7 @@
 
 - (void) setEnabled:(BOOL)enabled forButtonWithTitle:(NSString *)title;
 
-//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event; // NSSet will contain one UITouch object
-//
-//- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
-//
-//- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-//
-//- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
-
+@property (nonatomic, strong) NSMutableArray *colors;
 @property (nonatomic, weak) id <AwesomeFloatingToolbarDelegate> delegate;
 
 @end
