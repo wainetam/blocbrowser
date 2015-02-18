@@ -31,6 +31,7 @@
 - (void) setEnabled:(BOOL)enabled forButtonWithTitle:(NSString *)title;
 
 @property (nonatomic, strong) NSMutableArray *colors;
+@property (nonatomic, strong) NSArray *labels;
 @property (nonatomic, weak) id <AwesomeFloatingToolbarDelegate> delegate;
 
 @end

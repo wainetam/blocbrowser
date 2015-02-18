@@ -12,7 +12,7 @@
 
 @property (nonatomic, strong) NSArray *currentTitles;
 //@property (nonatomic, strong) NSMutableArray *colors;
-@property (nonatomic, strong) NSArray *labels;
+//@property (nonatomic, strong) NSArray *labels;
 @property (nonatomic, weak) UIButton *currentLabel;
 //@property (nonatomic, strong) UITapGestureRecognizer *tapGesture;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
@@ -43,7 +43,7 @@
         
         NSMutableArray *labelsArray = [[NSMutableArray alloc] init];
         
-        // make the 4 labels
+        // make the 4 buttons
         for (NSString *currentTitle in self.currentTitles) {
             UIButton *label = [[UIButton alloc] init];
             label.userInteractionEnabled = NO;
@@ -62,7 +62,6 @@
             [label setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
 //            label.textColor = [UIColor whiteColor];
             
-            // QUESTION: does this 'self' refer to the button or the instance of the toolbar; ok with self, crashed with 'label'; if self generally the parent object if there are subviews?
             [label addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
             
             [labelsArray addObject:label];
