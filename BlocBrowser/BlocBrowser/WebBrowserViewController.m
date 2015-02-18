@@ -15,7 +15,6 @@
 #define kWebBrowserRefreshString NSLocalizedString(@"Refresh", @"Reload command")
 
 @interface WebBrowserViewController () <UIWebViewDelegate, UITextFieldDelegate, AwesomeFloatingToolbarDelegate>
-// QUESTION: confused on what should be exposed in header vs implementation file
 
 @property (nonatomic, strong) UIWebView *webview;
 @property (nonatomic, strong) UITextField *textField;
@@ -53,7 +52,6 @@
     self.awesomeToolbar = [[AwesomeFloatingToolbar alloc] initWithFourTitles:@[kWebBrowserBackString, kWebBrowserForwardString, kWebBrowserStopString, kWebBrowserRefreshString]];
     
     self.awesomeToolbar.delegate = self;
-    // QUESTION: why assign VC as toolbar.delegate here vs in awesomeToolbar? for extensibility purposes (so other controllers can assign themselves as delegate?
     
 //    for (UIView *viewToAdd in @[self.webview, self.textField, self.backButton, self.forwardButton, self.stopButton, self.reloadButton]) {
     for (UIView *viewToAdd in @[self.webview, self.textField, self.awesomeToolbar]) {
@@ -101,12 +99,9 @@
     self.textField.frame = CGRectMake(0, 0, width, itemHeight);
     self.webview.frame = CGRectMake(0, CGRectGetMaxY(self.textField.frame), width, browserHeight);
     
-//    CGFloat currentButtonX = 0;
-//    for (UIButton *thisButton in @[self.backButton, self.forwardButton, self.stopButton, self.reloadButton]) {
-//        thisButton.frame = CGRectMake(currentButtonX, CGRectGetMaxY(self.webview.frame), buttonWidth, itemHeight);
-//        currentButtonX += buttonWidth;
-//    }
-    self.awesomeToolbar.frame = CGRectMake(width * 0.1, width * 0.1 + itemHeight, width * 0.8, 100); // QUESTION: best practice to let the controller set the frame size of the subview (vs within the subview.m file?
+    if (self.awesomeToolbar.frame.size.width == 0) { // upon first init of awesomeToolbar
+        self.awesomeToolbar.frame = CGRectMake(width * 0.1, width * 0.1 + itemHeight, width * 0.8, 100);
+    }
 }
 
 - (void)resetWebView {
@@ -136,6 +131,54 @@
     } else if ([title isEqual:kWebBrowserRefreshString]) {
         [self.webview reload];
     }
+}
+
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPanWithOffset:(CGPoint)offset {
+    CGPoint startingPoint = toolbar.frame.origin;
+    CGPoint newPoint = CGPointMake(startingPoint.x + offset.x, startingPoint.y + offset.y);
+    
+    CGRect potentialNewFrame = CGRectMake(newPoint.x, newPoint.y, CGRectGetWidth(toolbar.frame), CGRectGetHeight(toolbar.frame));
+    
+    if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
+        toolbar.frame = potentialNewFrame;
+    }
+}
+
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPinchWithScale:(CGFloat)scale {
+    // scale bounds
+
+    CGFloat newToolbarWidth = CGRectGetWidth(toolbar.bounds) * scale;
+    CGFloat newToolbarHeight = CGRectGetHeight(toolbar.bounds) * scale;
+    
+    CGRect potentialNewFrame = CGRectMake(self.awesomeToolbar.frame.origin.x
+                                           , self.awesomeToolbar.frame.origin.y, newToolbarWidth, newToolbarHeight);
+    
+    if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
+        self.awesomeToolbar.frame = potentialNewFrame;
+    }
+
+//    self.awesomeToolbar.transform = CGAffineTransformScale(self.awesomeToolbar.transform, scale, scale);
+}
+
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryLongPressWithRotateIndex:(int)count {
+    NSMutableArray *shiftedColors = [[NSMutableArray alloc] init];
+    shiftedColors = [self shiftArray:self.awesomeToolbar.colors shiftBy:count];
+    self.awesomeToolbar.colors = shiftedColors;
+    
+    for (int i = 0; i < [self.awesomeToolbar.labels count]; i++) {
+        ((UIView *)[self.awesomeToolbar.labels objectAtIndex:i]).backgroundColor = shiftedColors[i];
+    }
+}
+
+- (NSMutableArray *)shiftArray:(NSMutableArray *)inputArray shiftBy:(int)count {
+    for (int i = count; i > 0; i--) {
+        NSObject *obj = [inputArray lastObject];
+        [inputArray insertObject:obj atIndex:0];
+//        [inputArray removeObject:obj];
+        [inputArray removeLastObject];
+    }
+    
+    return inputArray;
 }
 
 #pragma mark - UITextFieldDelegate
@@ -215,10 +258,6 @@
         [self.activityIndicator stopAnimating];
     }
     
-//    self.backButton.enabled = [self.webview canGoBack];
-//    self.forwardButton.enabled = [self.webview canGoForward];
-//    self.stopButton.enabled = self.frameCount > 0;
-//    self.reloadButton.enabled = self.webview.request.URL && self.frameCount == 0;
     [self.awesomeToolbar setEnabled:[self.webview canGoBack] forButtonWithTitle:kWebBrowserBackString];
     [self.awesomeToolbar setEnabled:[self.webview canGoForward] forButtonWithTitle:kWebBrowserForwardString];
     [self.awesomeToolbar setEnabled:self.frameCount > 0 forButtonWithTitle:kWebBrowserStopString];
