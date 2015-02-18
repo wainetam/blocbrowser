@@ -163,12 +163,13 @@
 - (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryLongPressWithRotateIndex:(int)count {
     NSMutableArray *shiftedColors = [[NSMutableArray alloc] init];
     shiftedColors = [self shiftArray:self.awesomeToolbar.colors shiftBy:count];
-//    [self shiftArray:self.awesomeToolbar.colors shiftBy:count];
-    NSMutableArray *copy = [shiftedColors copy];
-    self.awesomeToolbar.colors = copy;
+    self.awesomeToolbar.colors = shiftedColors;
+    
+    for (int i = 0; i < [self.awesomeToolbar.labels count]; i++) {
+        ((UIView *)[self.awesomeToolbar.labels objectAtIndex:i]).backgroundColor = shiftedColors[i];
+    }
 }
 
-// QUESTION: where to put helper methods that aren't necessarily specfic to the class (global helper functions?)
 - (NSMutableArray *)shiftArray:(NSMutableArray *)inputArray shiftBy:(int)count {
     for (int i = count; i > 0; i--) {
         NSObject *obj = [inputArray lastObject];
